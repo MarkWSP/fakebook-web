@@ -5,13 +5,16 @@ import {
   Outlet,
   RouterProvider,
 } from "react-router";
+import UserLayout from "../layouts/userLayout";
+import useUserStore from "../stores/userStore";
+
 const Login = lazy(()=> import ('../pages/Login'))
 const Home = lazy(()=> import ('../pages/Home'))
 const Friends = lazy(()=> import ('../pages/Friends'))
 const Profile = lazy(()=> import ('../pages/Profile'))
 
 const guestRouter = createBrowserRouter([
-  { path: "/", element: <p>Login</p> },
+  { path: "/", element: <Login /> },
   { path: "/ads", element: <p>Advertising</p> },
   { path: "*", element: <Navigate to="/" /> },
 ]);
@@ -19,16 +22,10 @@ const guestRouter = createBrowserRouter([
 const userRouter = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <>
-        
-        {/* <div className="py-4 text-4xl border">Header</div> */}
-        <Outlet />
-      </>
-    ),
+    element: <UserLayout />,
 
     children: [
-      { path: "", element: <Home /> },
+      { index: true, element: <Home /> },
       { path: "friends", element: <Friends /> },
       { path: "profile", element: <Profile /> },
       { path: "login", element: <Login /> },
@@ -38,7 +35,7 @@ const userRouter = createBrowserRouter([
 ]);
 
 function AppRouter() {
-let user = 'andy@gmail.com'
+let user = useUserStore(state=>state.user)
 
   // const [user, setUser ] = useState(false)
   const finalRouter = user ? userRouter : guestRouter
@@ -46,7 +43,7 @@ let user = 'andy@gmail.com'
   return (  
   <Suspense fallback={<div>Loading.....</div>}>
   {/* <button className="btn btn-primary" onClick={()=>setUser(!user)}>Login</button> */}
-  <RouterProvider router={finalRouter} />
+  <RouterProvider key={user?.id} router={finalRouter} />
   </Suspense>
   )
 }
